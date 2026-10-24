@@ -1,9 +1,5 @@
 import jwt, { JwtPayload, Secret } from "jsonwebtoken";
 
-interface CustomJwtPayload extends JwtPayload {
-  exp: number;
-}
-
 const signToken = (
   payload: Record<string, unknown>,
   secret: Secret,
@@ -19,13 +15,7 @@ const signToken = (
 };
 
 const verifiedToken = (token: string, secret: Secret): JwtPayload => {
-  const decoded = jwt.verify(token, secret as string) as JwtPayload;
-
-  if (typeof decoded === "string" || !decoded.exp) {
-    throw new Error("Invalid token");
-  }
-
-  return decoded as CustomJwtPayload;
+  return jwt.verify(token, secret) as JwtPayload;
 };
 
 export const JwtHelpers = {

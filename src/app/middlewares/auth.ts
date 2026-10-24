@@ -4,15 +4,6 @@ import { Secret } from "jsonwebtoken";
 import config from "../../config";
 import ApiError from "../../errors/ApiError";
 import { JwtHelpers } from "../../helpers/jwt-helpers";
-import { IJwtPayload } from "../modules/auth/auth.interface";
-
-declare global {
-  namespace Express {
-    interface Request {
-      user?: IJwtPayload;
-    }
-  }
-}
 
 const auth =
   (...requiredRoles: string[]) =>
@@ -27,7 +18,7 @@ const auth =
         token,
         config.jwt.secret as Secret,
       );
-      req.user = verifiedUser as IJwtPayload;
+      req.user = verifiedUser;
 
       if (requiredRoles.length && !requiredRoles.includes(verifiedUser.role)) {
         throw new ApiError(StatusCodes.FORBIDDEN, "Forbidden");
