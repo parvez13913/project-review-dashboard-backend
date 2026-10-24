@@ -20,7 +20,7 @@ app.use(express.urlencoded({ extended: true }));
 app.get("/", (_req: Request, res: Response) => {
   res.status(StatusCodes.OK).json({
     success: true,
-    message: "JobPilot Backend Server is running!",
+    message: "Backend Server is running!",
   });
 });
 
