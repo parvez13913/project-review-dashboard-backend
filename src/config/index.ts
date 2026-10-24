@@ -12,4 +12,6 @@ export default {
   admin_email: process.env.ADMIN_EMAIL,
   admin_password: process.env.ADMIN_PASSWORD,
   bcrypt_salt_round: process.env.BCRYPT_SALT_ROUND,
+  jwt_secret: process.env.JWT_SECRET,
+  jwt_expires_in: process.env.JWT_EXPIRES_IN,
 };
