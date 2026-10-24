@@ -5,7 +5,7 @@ import config from "../../../config";
 import ApiError from "../../../errors/ApiError";
 import { JwtHelpers } from "../../../helpers/jwt-helpers";
 import prisma from "../../../lib/prisma";
-import { IJwtPayload, IRegisterPayload } from "./auth.interface";
+import { IJwtPayload, ILoginPayload, IRegisterPayload } from "./auth.interface";
 
 const sanitizeUser = (user: {
   id: string;
@@ -74,6 +74,40 @@ const register = async (data: IRegisterPayload) => {
   };
 };
 
+const login = async (data: ILoginPayload) => {
+  const email = data.email;
+
+  const user = await prisma.user.findUnique({
+    where: { email },
+  });
+
+  if (!user) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid email or password");
+  }
+
+  const isPasswordValid = await bcrypt.compare(data.password, user.password);
+
+  if (!isPasswordValid) {
+    throw new ApiError(StatusCodes.UNAUTHORIZED, "Invalid email or password");
+  }
+
+  const token = JwtHelpers.signToken(
+    {
+      userId: user.id,
+      email: user.email,
+      role: user.role,
+    },
+    config.jwt_secret as Secret,
+    config.jwt_expires_in as unknown as string,
+  );
+
+  return {
+    user: sanitizeUser(user),
+    token,
+  };
+};
+
 export const AuthService = {
   register,
+  login,
 };
