@@ -64,8 +64,8 @@ const register = async (data: IRegisterPayload) => {
       email: user.email,
       role: user.role,
     },
-    config.jwt_secret as Secret,
-    config.jwt_expires_in as unknown as string,
+    config.jwt.secret as Secret,
+    config.jwt.expires_in as unknown as string,
   );
 
   return {
@@ -97,8 +97,8 @@ const login = async (data: ILoginPayload) => {
       email: user.email,
       role: user.role,
     },
-    config.jwt_secret as Secret,
-    config.jwt_expires_in as unknown as string,
+    config.jwt.secret as Secret,
+    config.jwt.expires_in as unknown as string,
   );
 
   return {
@@ -107,7 +107,20 @@ const login = async (data: ILoginPayload) => {
   };
 };
 
+const getMe = async (userId: string) => {
+  const user = await prisma.user.findUnique({
+    where: { id: userId },
+  });
+
+  if (!user) {
+    throw new ApiError(StatusCodes.NOT_FOUND, "User not found");
+  }
+
+  return sanitizeUser(user);
+};
+
 export const AuthService = {
   register,
   login,
+  getMe,
 };
