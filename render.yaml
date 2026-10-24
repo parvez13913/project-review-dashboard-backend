@@ -1,9 +1,0 @@
-services:
-  - type: web
-    name: project-review-dashboard-backend
-    env: node
-    buildCommand: npm install && npx prisma generate && npm run build
-    startCommand: node dist/server.js
-    envVars:
-      - key: NODE_ENV
-        value: production
