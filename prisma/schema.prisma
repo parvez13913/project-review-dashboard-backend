@@ -7,30 +7,15 @@ datasource db {
   provider = "postgresql"
 }
 
-
-
-enum Role {
-  STUDENT
-  ADMIN
-}
-
-enum SubmissionStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
-
 model User {
-  id           String       @id @default(cuid())
-  name         String
-  email        String       @unique
-  password String
-  role         Role         @default(STUDENT)
-
-  submissions  Submission[]
-
-  createdAt    DateTime     @default(now())
-  updatedAt    DateTime     @updatedAt
+  id          String      @id @default(cuid())
+  name        String
+  email       String      @unique
+  password    String
+  role        Role        @default(STUDENT)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  submissions Submission?
 
   @@index([role])
 }
@@ -41,17 +26,24 @@ model Submission {
   repoUrl     String
   liveLink    String
   description String
-
   status      SubmissionStatus @default(PENDING)
-
   studentId   String           @unique
-  student     User             @relation(fields: [studentId], references: [id], onDelete: Restrict)
-
   reviewedAt  DateTime?
   reviewNote  String?
-
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
+  student     User             @relation(fields: [studentId], references: [id])
 
   @@index([status, createdAt])
+}
+
+enum Role {
+  STUDENT
+  ADMIN
+}
+
+enum SubmissionStatus {
+  PENDING
+  APPROVED
+  REJECTED
 }
