@@ -36,8 +36,6 @@ async function main() {
       role: Role.ADMIN,
     },
   });
-
-  console.log("Admin account seeded successfully");
 }
 
 main()
