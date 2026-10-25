@@ -1,32 +1,47 @@
 import { NextFunction, Request, Response } from "express";
-import { StatusCodes } from "http-status-codes";
-import { Secret } from "jsonwebtoken";
-import config from "../../config";
-import ApiError from "../../errors/ApiError";
 import { JwtHelpers } from "../../helpers/jwt-helpers";
 
-const auth =
-  (...requiredRoles: string[]) =>
-  async (req: Request, res: Response, next: NextFunction) => {
+const auth = (...roles: string[]) => {
+  return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const token = req.headers.authorization;
-      if (!token) {
-        throw new ApiError(StatusCodes.UNAUTHORIZED, "You are not authorized");
+      const authHeader = req.headers.authorization;
+
+      if (!authHeader || !authHeader.startsWith("Bearer ")) {
+        return res.status(401).json({
+          success: false,
+          message: "You are not authorized! No token provided.",
+        });
       }
-      let verifiedUser = null;
-      verifiedUser = JwtHelpers.verifiedToken(
+      const token = authHeader.split(" ")[1]?.replace(/^"|"$/g, "").trim();
+
+      if (!token || token === "undefined" || token === "null") {
+        return res
+          .status(401)
+          .json({ success: false, message: "Invalid token format!" });
+      }
+
+      // Verify token
+      const verifiedUser = JwtHelpers.verifiedToken(
         token,
-        config.jwt.secret as Secret,
+        process.env.JWT_SECRET as string,
       );
+
       req.user = verifiedUser;
 
-      if (requiredRoles.length && !requiredRoles.includes(verifiedUser.role)) {
-        throw new ApiError(StatusCodes.FORBIDDEN, "Forbidden");
+      if (roles.length && !roles.includes(verifiedUser.role)) {
+        return res.status(403).json({
+          success: false,
+          message: "Forbidden! You lack required permissions.",
+        });
       }
+
       next();
-    } catch (error) {
-      next(error);
+    } catch (err) {
+      return res
+        .status(401)
+        .json({ success: false, message: "Invalid token!" });
     }
   };
+};
 
 export default auth;

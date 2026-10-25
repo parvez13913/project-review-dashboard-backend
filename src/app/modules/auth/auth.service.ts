@@ -1,5 +1,6 @@
 import bcrypt from "bcryptjs";
 import { StatusCodes } from "http-status-codes";
+import { Secret } from "jsonwebtoken";
 import config from "../../../config";
 import ApiError from "../../../errors/ApiError";
 import { JwtHelpers } from "../../../helpers/jwt-helpers";
@@ -63,7 +64,7 @@ const register = async (data: IRegisterPayload) => {
       email: user.email,
       role: user.role,
     },
-    config.jwt.secret as string,
+    config?.jwt?.secret as Secret,
     config.jwt.expires_in as string,
   );
 
@@ -96,7 +97,7 @@ const login = async (data: ILoginPayload) => {
       email: user.email,
       role: user.role,
     },
-    config.jwt.secret as string,
+    config.jwt.secret as Secret,
     config.jwt.expires_in as string,
   );
 
